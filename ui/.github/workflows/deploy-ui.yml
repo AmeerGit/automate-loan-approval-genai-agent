@@ -1,0 +1,37 @@
+name: Deploy React UI to Cloud Run
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'ui/**'
+      - '!ui/README.md'
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./ui
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Google Cloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+        with:
+          project_id: ${{ secrets.GCP_PROJECT_ID }}
+          service_account_key: ${{ secrets.GCP_SA_KEY }}
+          export_default_credentials: true
+
+      - name: Build and push Docker image
+        run: |
+          gcloud builds submit --tag gcr.io/${{ secrets.GCP_PROJECT_ID }}/loan-ui
+
+      - name: Deploy to Cloud Run
+        run: |
+          gcloud run deploy loan-ui \
+            --image gcr.io/${{ secrets.GCP_PROJECT_ID }}/loan-ui \
+            --platform managed \
+            --region ${{ secrets.GCP_REGION }} \
+            --allow-unauthenticated
