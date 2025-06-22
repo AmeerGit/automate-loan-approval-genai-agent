@@ -9,8 +9,14 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s %(levelname)s %(mess
 # --- Utility: Escalation ---
 def escalate(reason: str, context: dict) -> dict:
     logging.warning(f"Escalation triggered: {reason} | Context: {context}")
-    time.sleep(1)  # Simulate human-in-the-loop
-    return {"escalation": "notified_human", "status": "approved_by_human", "reason": reason, "context": context}
+    human_decision = context.get("human_decision")
+    if human_decision:
+        status = human_decision.get("status", "approved_by_human")
+        notes = human_decision.get("notes", "Human reviewed and approved.")
+        return {"escalation": "notified_human", "status": status, "notes": notes, "reason": reason, "context": context}
+    else:
+        # Default: pending human action
+        return {"escalation": "pending_human", "status": "pending", "reason": reason, "context": context}
 
 # --- Customer Data Sub-Agent ---
 # In-memory mock customer data
@@ -89,11 +95,21 @@ def safe_eval_rule(rule: str, context: dict) -> bool:
         return False
 
 def check_compliance(application: dict, customer: dict, rules: Optional[List[str]] = None) -> dict:
+    # If human decision is present and approved, treat as compliant
+    human_decision = application.get("human_decision")
+    if human_decision and human_decision.get("status") == "approved_by_human":
+        return {"compliant": True, "reason": "Approved by human override."}
+    # --- Salary-based rules (Caixabank best practice) ---
+    salary = customer.get("annual_income", 0)
+    if salary < 18000:
+        return {"compliant": False, "reason": "Salary below minimum threshold (auto-reject).", "escalate": False}
+    if 18000 <= salary < 25000:
+        return {"compliant": False, "reason": "Salary in borderline range, requires risk/compliance review.", "escalate": True}
     # Static rules
     if application.get("amount", 0) > 50000:
-        return {"compliant": False, "reason": "Amount exceeds auto-approval limit."}
+        return {"compliant": False, "reason": "Amount exceeds auto-approval limit.", "escalate": True}
     if customer.get("kyc_status") != "verified":
-        return {"compliant": False, "reason": "KYC not verified."}
+        return {"compliant": False, "reason": "KYC not verified.", "escalate": True}
     if customer.get("credit_score", 0) < 600:
         return {"compliant": False, "reason": "Credit score below minimum threshold."}
     if customer.get("employment_status") != "employed":
@@ -130,11 +146,25 @@ rpa_agent = Agent(
 
 # --- Loan Processing Sub-Agent ---
 def process_loan(application: dict, customer: dict, compliance: dict) -> dict:
+    human_decision = application.get("human_decision")
+    # If human decision is present, honor it
+    if human_decision:
+        status = human_decision.get("status")
+        notes = human_decision.get("notes", "Human reviewed.")
+        if status == "approved_by_human":
+            rpa_result = simulate_ui_action("approve_loan", {"application": application, "customer": customer})
+            return {"status": "approved", "message": "Loan approved by human.", "rpa_log": rpa_result, "escalation_result": {"escalation": "notified_human", "status": status, "notes": notes}}
+        else:
+            return {"status": "rejected", "reason": notes, "escalation_result": {"escalation": "notified_human", "status": status, "notes": notes}}
+    # Otherwise, normal compliance/escalation logic
     if not compliance.get("compliant", False):
+        if compliance.get("escalate"):
+            escalation_result = escalate(compliance.get("reason", "Compliance failed"), {"application": application, "customer": customer, "human_decision": human_decision})
+            return {"status": escalation_result["status"], "reason": escalation_result.get("notes", escalation_result.get("reason")), "escalation_result": escalation_result}
         return {"status": "rejected", "reason": compliance.get("reason", "Compliance failed")}
-    if application.get("amount", 0) > 50000:
-        escalation_result = escalate("High-value loan requires human approval.", {"application": application, "customer": customer})
-        return {"status": "escalated", "reason": "High-value loan requires human approval.", "escalation_result": escalation_result}
+    if application.get("amount", 0) > 50000 or customer.get("escalate"):
+        escalation_result = escalate("High-value loan or flagged customer requires human approval.", {"application": application, "customer": customer, "human_decision": human_decision})
+        return {"status": escalation_result["status"], "reason": escalation_result.get("notes", escalation_result.get("reason")), "escalation_result": escalation_result}
     rpa_result = simulate_ui_action("approve_loan", {"application": application, "customer": customer})
     return {"status": "approved", "message": "Loan approved and processed.", "rpa_log": rpa_result}
 
@@ -147,8 +177,10 @@ loan_agent = Agent(
 )
 
 # --- Main Banking RPA Root Agent ---
-def orchestrate_loan_workflow(customer_id: str, amount: float, rules: Optional[List[str]] = None) -> dict:
+def orchestrate_loan_workflow(customer_id: str, amount: float, rules: Optional[List[str]] = None, human_decision: Optional[dict] = None) -> dict:
     application = {"customer_id": customer_id, "amount": amount}
+    if human_decision:
+        application["human_decision"] = human_decision
     customer = fetch_customer_data(customer_id)
     compliance = check_compliance(application, customer, rules)
     result = process_loan(application, customer, compliance)

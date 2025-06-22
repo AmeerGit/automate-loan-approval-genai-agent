@@ -23,9 +23,17 @@ export default function App() {
 
   return (
     <Container maxWidth="md" sx={{ mt: 4 }}>
-      <Typography variant="h4" gutterBottom>
-        GenAI-Powered Banking RPA Back Office
-      </Typography>
+        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'start', mb: 4 }}>
+               <img src="/caixabank-logo.svg" alt="Caixabank Logo" style={{ height: 48, marginRight: 20 }} />
+               <Box>
+                 <span style={{ fontSize: 28, fontWeight: 600, color: '#003366', display: 'block' }}>
+                   CaixaFlow
+                 </span>
+                 <span style={{ fontSize: 16, fontWeight: 400, color: '#00B2A9', display: 'block' }}>
+                   GenAI-Powered Banking RPA Back Office
+                 </span>
+               </Box>
+             </Box>
       <Paper sx={{ p: 2, mb: 2 }}>
         <TaskSelector task={task} onChange={handleTaskChange} />
         {task === "process_loan" && (
