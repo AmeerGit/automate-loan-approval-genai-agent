@@ -14,6 +14,7 @@ export default function App() {
   const [tab, setTab] = useState(0);
 
   const handleTaskChange = (newTask) => {
+    console.log("Selected task:", newTask);
     setTask(newTask);
     setWorkflowResult(null);
     setProgress([]);

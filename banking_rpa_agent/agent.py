@@ -8,7 +8,7 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s %(levelname)s %(mess
 
 # --- Utility: Escalation ---
 def escalate(reason: str, context: dict) -> dict:
-    logging.warning(f"Escalation triggered: {reason} | Context: {context}")
+    logging.warning(f"Escalation triggered: {reason} | Context  : {context}")
     time.sleep(1)  # Simulate human-in-the-loop
     return {"escalation": "notified_human", "status": "approved_by_human", "reason": reason, "context": context}
 
