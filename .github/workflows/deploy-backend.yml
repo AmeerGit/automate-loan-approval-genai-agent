@@ -4,7 +4,7 @@ on:
   push:
     branches: [ main ]
     paths:
-      - 'multi_tool_agent/**'
+      - 'banking_rpa_agent/**'
       - 'requirements.txt'
       - 'Dockerfile'
       - '!README.md'
