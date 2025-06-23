@@ -1,8 +1,10 @@
-from fastapi import FastAPI
-from fastapi.responses import JSONResponse
+from flask import Flask, jsonify
+import logging
 
-app = FastAPI()
+app = Flask(__name__)
+logging.basicConfig(level=logging.INFO, format='%(asctime)s %(levelname)s %(message)s')
 
+# This data now lives in its own "service"
 CUSTOMERS = {
     "C123": {
         "customer_id": "C123",
@@ -30,7 +32,6 @@ CUSTOMERS = {
         "existing_loans": 2,
         "loan_defaults": 1
     },
-    # Low salary, should auto-reject
     "C789": {
         "customer_id": "C789",
         "name": "Carlos Ruiz",
@@ -44,7 +45,6 @@ CUSTOMERS = {
         "existing_loans": 0,
         "loan_defaults": 0
     },
-    # Borderline salary, should escalate
     "C321": {
         "customer_id": "C321",
         "name": "Maria Lopez",
@@ -58,7 +58,6 @@ CUSTOMERS = {
         "existing_loans": 1,
         "loan_defaults": 0
     },
-    # Bad credit score
     "C654": {
         "customer_id": "C654",
         "name": "Luis Garcia",
@@ -72,7 +71,6 @@ CUSTOMERS = {
         "existing_loans": 3,
         "loan_defaults": 2
     },
-    # Inactive account
     "C111": {
         "customer_id": "C111",
         "name": "Pablo Martinez",
@@ -86,7 +84,6 @@ CUSTOMERS = {
         "existing_loans": 1,
         "loan_defaults": 0
     },
-    # Self-employed, good salary
     "C222": {
         "customer_id": "C222",
         "name": "Lucia Fernandez",
@@ -100,7 +97,6 @@ CUSTOMERS = {
         "existing_loans": 0,
         "loan_defaults": 0
     },
-    # Missing credit score
     "C333": {
         "customer_id": "C333",
         "name": "Miguel Sanchez",
@@ -112,26 +108,16 @@ CUSTOMERS = {
         "annual_income": 30000,
         "existing_loans": 0,
         "loan_defaults": 0
-    },
-    # Many loan defaults
-    "C444": {
-        "customer_id": "C444",
-        "name": "Isabel Romero",
-        "kyc_status": "verified",
-        "account_status": "active",
-        "address": "444 Willow St, Murcia",
-        "dob": "1975-06-06",
-        "credit_score": 610,
-        "employment_status": "employed",
-        "annual_income": 42000,
-        "existing_loans": 4,
-        "loan_defaults": 4
     }
 }
 
-@app.get("/customers/{customer_id}")
-def get_customer(customer_id: str):
+@app.route('/customers/<string:customer_id>', methods=['GET'])
+def get_customer(customer_id):
     customer = CUSTOMERS.get(customer_id)
     if customer:
-        return JSONResponse(content=customer)
-    return JSONResponse(content={"error": "Customer not found"}, status_code=404)
+        return jsonify(customer)
+    else:
+        return jsonify({"error": "Customer not found"}), 404
+
+if __name__ == '__main__':
+    app.run(port=5001, debug=True)

@@ -89,20 +89,6 @@ CUSTOMERS = {
         "existing_loans": 3,
         "loan_defaults": 2
     },
-    # KYC not verified
-    "C987": {
-        "customer_id": "C987",
-        "name": "Ana Torres",
-        "kyc_status": "not verified",
-        "account_status": "active",
-        "address": "987 Cedar St, Sevilla",
-        "dob": "1992-05-10",
-        "credit_score": 720,
-        "employment_status": "employed",
-        "annual_income": 55000,
-        "existing_loans": 0,
-        "loan_defaults": 0
-    },
     # Inactive account
     "C111": {
         "customer_id": "C111",
