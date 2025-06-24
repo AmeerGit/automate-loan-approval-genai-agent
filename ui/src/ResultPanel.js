@@ -4,7 +4,7 @@ import { Paper, Typography, Box, Divider, Chip } from "@mui/material";
 export default function ResultPanel({ result }) {
   if (!result) return <Typography variant="body1">No result yet.</Typography>;
   // Try to extract key workflow info if result is an array
-  let workflowStep, summaryStep, loanResult, customer, compliance, rpaLog, summaryText;
+  let workflowStep, summaryStep, loanResult, customer, compliance, rpaLog, summaryText, approval_number;
   if (Array.isArray(result)) {
     workflowStep = result.find(r => r.content?.parts?.[0]?.functionResponse);
     summaryStep = result.find(r => r.content?.parts?.[0]?.text);
@@ -14,6 +14,7 @@ export default function ResultPanel({ result }) {
       customer = resp.customer;
       compliance = resp.compliance;
       rpaLog = loanResult?.rpa_log;
+      approval_number = loanResult?.approval_number;
     }
     if (summaryStep) {
       summaryText = summaryStep.content.parts[0].text;
@@ -28,6 +29,11 @@ export default function ResultPanel({ result }) {
             Status: <Chip label={loanResult.status} color={loanResult.status === "approved" ? "success" : "error"} />
           </Typography>
           <Typography variant="body1">{loanResult.message}</Typography>
+        </Box>
+      )}
+         {approval_number && (
+        <Box mb={2}>
+          <Typography variant="body2">Loan number : {approval_number.action}</Typography>
         </Box>
       )}
       {customer && (
@@ -60,7 +66,6 @@ export default function ResultPanel({ result }) {
           <Typography variant="body1" sx={{ mt: 1 }}>{summaryText}</Typography>
         </Box>
       )}
-      {/* Fallback: show raw JSON if nothing parsed */}
       {!loanResult && !customer && !compliance && !rpaLog && !summaryText && (
         <pre style={{ whiteSpace: "pre-wrap", wordBreak: "break-all" }}>{JSON.stringify(result, null, 2)}</pre>
       )}

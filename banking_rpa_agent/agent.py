@@ -64,6 +64,9 @@ loan_agent = Agent(
     tools=[process_loan],
 )
 
+def generate_loan_approval_number():
+    return "LN-" + str(int(time.time()))
+
 # --- Main Banking RPA Root Agent ---
 def orchestrate_loan_workflow(customer_id: str, amount: float, rules: Optional[List[str]] = None, human_decision: Optional[dict] = None) -> dict:
     application = {"customer_id": customer_id, "amount": amount}
@@ -72,6 +75,8 @@ def orchestrate_loan_workflow(customer_id: str, amount: float, rules: Optional[L
     customer = fetch_customer_data(customer_id)
     compliance = check_compliance(application, customer, rules)
     result = process_loan(application, customer, compliance)
+    if result.get("status") == "approved":
+       result["approval_number"] = generate_loan_approval_number()
     logging.info(f"Workflow result: {result}")
     return {
         "customer": customer,
