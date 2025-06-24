@@ -6,6 +6,7 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s %(levelname)s %(mess
 
 # This data now lives in its own "service"
 CUSTOMERS = {
+  # High credit score, should auto-approve
     "C123": {
         "customer_id": "C123",
         "name": "John Doe",
@@ -19,19 +20,7 @@ CUSTOMERS = {
         "existing_loans": 1,
         "loan_defaults": 0
     },
-    "C456": {
-        "customer_id": "C456",
-        "name": "Jane Smith",
-        "kyc_status": "pending",
-        "account_status": "inactive",
-        "address": "456 Elm St, Metropolis",
-        "dob": "1990-09-23",
-        "credit_score": 650,
-        "employment_status": "self-employed",
-        "annual_income": 60000,
-        "existing_loans": 2,
-        "loan_defaults": 1
-    },
+    # Low salary, should auto-reject
     "C789": {
         "customer_id": "C789",
         "name": "Carlos Ruiz",
@@ -45,6 +34,7 @@ CUSTOMERS = {
         "existing_loans": 0,
         "loan_defaults": 0
     },
+    # Borderline salary, should escalate
     "C321": {
         "customer_id": "C321",
         "name": "Maria Lopez",
@@ -56,57 +46,6 @@ CUSTOMERS = {
         "employment_status": "employed",
         "annual_income": 20000,
         "existing_loans": 1,
-        "loan_defaults": 0
-    },
-    "C654": {
-        "customer_id": "C654",
-        "name": "Luis Garcia",
-        "kyc_status": "verified",
-        "account_status": "active",
-        "address": "654 Maple St, Valencia",
-        "dob": "1978-03-22",
-        "credit_score": 550,
-        "employment_status": "employed",
-        "annual_income": 40000,
-        "existing_loans": 3,
-        "loan_defaults": 2
-    },
-    "C111": {
-        "customer_id": "C111",
-        "name": "Pablo Martinez",
-        "kyc_status": "verified",
-        "account_status": "inactive",
-        "address": "111 Birch St, Bilbao",
-        "dob": "1980-01-01",
-        "credit_score": 690,
-        "employment_status": "employed",
-        "annual_income": 35000,
-        "existing_loans": 1,
-        "loan_defaults": 0
-    },
-    "C222": {
-        "customer_id": "C222",
-        "name": "Lucia Fernandez",
-        "kyc_status": "verified",
-        "account_status": "active",
-        "address": "222 Palm St, Zaragoza",
-        "dob": "1983-09-09",
-        "credit_score": 710,
-        "employment_status": "self-employed",
-        "annual_income": 65000,
-        "existing_loans": 0,
-        "loan_defaults": 0
-    },
-    "C333": {
-        "customer_id": "C333",
-        "name": "Miguel Sanchez",
-        "kyc_status": "verified",
-        "account_status": "active",
-        "address": "333 Spruce St, Malaga",
-        "dob": "1999-12-12",
-        "employment_status": "employed",
-        "annual_income": 30000,
-        "existing_loans": 0,
         "loan_defaults": 0
     }
 }

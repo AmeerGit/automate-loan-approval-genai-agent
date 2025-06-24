@@ -99,8 +99,9 @@ export default function LoanForm({ setWorkflowResult, setLog, setProgress }) {
   const handleHumanDecision = async (decision) => {
     setShowEscalation(false);
     setLoading(true);
-    setLog(log => [...log, `Human decision: ${decision.status}`]);
-    // Re-run workflow with human_decision at top level (not inside newMessage)
+    setLog(log => [...log, `Submitting human decision: ${decision.status}`]);
+    // Re-run workflow, passing the human decision within the prompt
+    // so the agent's LLM can parse it and pass it to the tool.
     const res = await fetch("http://localhost:8000/run", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -111,10 +112,9 @@ export default function LoanForm({ setWorkflowResult, setLog, setProgress }) {
         newMessage: {
           role: "user",
           parts: [{
-            text: `Loan application amount is  ${amount} for customer ${customerId}.`,
+            text: `The loan application for customer ${customerId} for amount ${amount} requires a manual decision. Please process the following human decision: status is '${decision.status}', notes are '${decision.notes}'.`,
           }]
         },
-        human_decision: decision
       })
     });
     const data = await res.json();
