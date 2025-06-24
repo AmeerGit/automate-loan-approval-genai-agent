@@ -70,6 +70,7 @@ export default function LoanForm({ setWorkflowResult, setLog, setProgress }) {
         setProgress(p => [...p, "Application auto-rejected"]);
         setLog(log => [...log, "Application rejected: " + loanResult.reason]);
         setShowEscalation(false);
+        setLoading(false);
         return;
       }
       // Handle escalation for borderline salary (risk review)
