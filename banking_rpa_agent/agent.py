@@ -11,18 +11,6 @@ from typing import Optional, List, Dict, Any
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s %(levelname)s %(message)s')
 
-# --- Utility: Escalation ---
-# def escalate(reason: str, context: dict) -> dict:
-#     logging.warning(f"Escalation triggered: {reason} | Context: {context}")
-#     human_decision = context.get("human_decision")
-#     if human_decision:
-#         status = human_decision.get("status", "approved_by_human")
-#         notes = human_decision.get("notes", "Human reviewed and approved.")
-#         return {"escalation": "notified_human", "status": status, "notes": notes, "reason": reason, "context": context}
-#     else:
-#         # Default: pending human action
-#         return {"escalation": "pending_human", "status": "pending", "reason": reason, "context": context}
-
 # customer fetch sub agent
 customer_agent = Agent(
     name="customer_agent",
